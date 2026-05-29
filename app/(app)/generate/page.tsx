@@ -28,10 +28,7 @@ export default function GeneratePage() {
 
   const generate = async (text: string) => {
     if (!text.trim() || loading) return;
-    setError('');
-    setLoading(true);
-    setPreview(null);
-
+    setError(''); setLoading(true); setPreview(null);
     try {
       const res = await fetch('/api/generate', {
         method: 'POST',
@@ -47,113 +44,108 @@ export default function GeneratePage() {
         exercises: [],
       });
       setSessionId(data.session.id);
-    } catch {
-      setError('Erreur réseau. Réessaie.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    generate(prompt);
-  };
-
-  const startSession = () => {
-    if (sessionId) router.push(`/session/${sessionId}`);
+    } catch { setError('Erreur réseau. Réessaie.'); }
+    finally { setLoading(false); }
   };
 
   return (
-    <div className="flex flex-col gap-6 animate-in">
-      <div>
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Générer une séance</h1>
-        <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
+    <div className="animate-in" style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+
+      {/* Header */}
+      <div style={{ padding: '24px 20px 20px' }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.4px' }}>Générer une séance</h1>
+        <p style={{ fontSize: 13.5, color: 'var(--sub)', marginTop: 4, fontWeight: 500 }}>
           Décris ce que tu veux travailler, l'IA s'occupe du reste.
         </p>
       </div>
 
-      {/* Prompt input */}
-      <form onSubmit={handleSubmit} className="glass-strong p-4 flex flex-col gap-3">
-        <textarea
-          value={prompt}
-          onChange={e => setPrompt(e.target.value)}
-          placeholder="Ex : Je veux travailler le haut du corps, surtout les pectoraux et les épaules. Pas d'exercice pour les trapèzes aujourd'hui."
-          className="input resize-none"
-          rows={4}
-          style={{ borderRadius: 12 }}
-        />
-        <button
-          type="submit"
-          className="btn-primary self-end"
-          disabled={loading || !prompt.trim()}
-        >
-          {loading
-            ? <><Loader2 size={18} className="animate-spin" /> Génération...</>
-            : <><Sparkles size={18} /> Générer</>
-          }
-        </button>
-      </form>
+      {/* Prompt card */}
+      <div style={{ padding: '0 20px' }}>
+        <div style={{ background: 'var(--card-bg)', borderRadius: 20, padding: '16px', border: 'var(--card-border)', boxShadow: 'var(--card-shadow)', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <textarea
+            value={prompt}
+            onChange={e => setPrompt(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); generate(prompt); } }}
+            placeholder="Ex : Haut du corps, surtout les pectoraux et les épaules. Pas les trapèzes aujourd'hui."
+            className="input"
+            rows={4}
+            style={{ resize: 'none', borderRadius: 14, fontSize: 14 }}
+          />
+          <button
+            onClick={() => generate(prompt)}
+            disabled={loading || !prompt.trim()}
+            className="btn-primary"
+            style={{ width: '100%', height: 48, fontSize: 15 }}
+          >
+            {loading ? <><Loader2 size={18} style={{ animation: 'spin .8s linear infinite' }} /> Génération en cours...</> : <><Sparkles size={18} /> Générer ma séance</>}
+          </button>
+        </div>
+      </div>
 
-      {error && <p className="pill pill-red justify-center">{error}</p>}
-
-      {/* Quick prompts */}
-      {!preview && !loading && (
-        <section>
-          <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--text-muted)' }}>
-            Suggestions rapides
-          </p>
-          <div className="flex flex-col gap-2">
-            {QUICK_PROMPTS.map(p => (
-              <button
-                key={p}
-                onClick={() => { setPrompt(p); generate(p); }}
-                className="glass p-3.5 flex items-center justify-between hover-lift text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <Dumbbell size={16} style={{ color: 'var(--indigo-light)' }} />
-                  <span className="text-sm" style={{ color: 'var(--text-primary)' }}>{p}</span>
-                </div>
-                <ChevronRight size={16} style={{ color: 'var(--text-muted)' }} />
-              </button>
-            ))}
+      {error && (
+        <div style={{ padding: '12px 20px 0' }}>
+          <div style={{ background: '#fee2e2', border: '1px solid #fecaca', borderRadius: 14, padding: '12px 16px', fontSize: 13.5, fontWeight: 600, color: '#dc2626', textAlign: 'center' }}>
+            {error}
           </div>
-        </section>
+        </div>
       )}
 
       {/* Preview */}
       {preview && sessionId && (
-        <div className="glass-strong p-5 flex flex-col gap-4 animate-scale">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Sparkles size={16} style={{ color: 'var(--indigo-light)' }} />
-              <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--indigo-light)' }}>
-                Séance générée
-              </span>
+        <div style={{ padding: '16px 20px 0' }}>
+          <div className="animate-scale" style={{ background: 'var(--primary)', borderRadius: 20, padding: '20px', boxShadow: '0 12px 28px -10px rgba(15,163,107,.5)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+              <Sparkles size={14} color="rgba(255,255,255,.9)" />
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,.85)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Séance générée</span>
             </div>
-            <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>{preview.session_name}</h2>
-            <div className="flex items-center gap-2 mt-2">
-              <Clock size={14} style={{ color: 'var(--text-muted)' }} />
-              <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{preview.estimated_duration} min</span>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: '#fff', letterSpacing: '-0.3px' }}>{preview.session_name}</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
+              <Clock size={13} color="rgba(255,255,255,.8)" />
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,.85)', fontWeight: 600 }}>{preview.estimated_duration} min</span>
             </div>
-          </div>
-
-          <div className="flex flex-wrap gap-1.5">
-            {preview.muscles_targeted.map(m => (
-              <span key={m} className="pill pill-indigo">{m}</span>
-            ))}
-          </div>
-
-          <div className="flex gap-3">
-            <button onClick={startSession} className="btn-orange flex-1">
-              <ChevronRight size={18} />
-              Commencer maintenant
-            </button>
-            <button onClick={() => { setPreview(null); setSessionId(null); setPrompt(''); }} className="btn-ghost">
-              Modifier
-            </button>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 12 }}>
+              {preview.muscles_targeted.map(m => (
+                <span key={m} style={{ background: 'rgba(255,255,255,.2)', color: '#fff', fontSize: 11.5, fontWeight: 700, padding: '4px 10px', borderRadius: 20 }}>{m}</span>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
+              <button onClick={() => sessionId && router.push(`/session/${sessionId}`)} className="btn-primary" style={{ flex: 1, background: '#fff', color: 'var(--primary)', boxShadow: 'none', height: 46 }}>
+                Commencer maintenant →
+              </button>
+              <button onClick={() => { setPreview(null); setSessionId(null); setPrompt(''); }} style={{ background: 'rgba(255,255,255,.2)', border: 'none', borderRadius: 12, padding: '0 16px', color: '#fff', fontWeight: 600, fontSize: 14, cursor: 'pointer', height: 46 }}>
+                Modifier
+              </button>
+            </div>
           </div>
         </div>
       )}
+
+      {/* Quick prompts */}
+      {!preview && !loading && (
+        <div style={{ padding: '24px 20px 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--sub)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Suggestions rapides</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {QUICK_PROMPTS.map(p => (
+              <button key={p} onClick={() => { setPrompt(p); generate(p); }} style={{
+                background: 'var(--card-bg)', border: 'var(--card-border)', boxShadow: 'var(--card-shadow)',
+                borderRadius: 16, padding: '14px 16px',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+                cursor: 'pointer', textAlign: 'left', transition: 'transform .15s ease',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ width: 34, height: 34, borderRadius: 10, background: 'var(--primary-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Dumbbell size={17} color="var(--primary)" />
+                  </div>
+                  <span style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--ink)' }}>{p}</span>
+                </div>
+                <ChevronRight size={16} color="var(--sub)" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   );
 }

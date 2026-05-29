@@ -115,8 +115,8 @@ export default function SessionPage() {
   const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 240 }}>
-      <div style={{ width: 32, height: 32, borderRadius: '50%', border: '3px solid var(--green-mid)', borderTopColor: 'transparent', animation: 'spin 0.8s linear infinite' }} />
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
+      <div style={{ width: 30, height: 30, borderRadius: '50%', border: '3px solid var(--primary)', borderTopColor: 'transparent', animation: 'spin 0.8s linear infinite' }} />
     </div>
   );
 
@@ -124,39 +124,39 @@ export default function SessionPage() {
   if (done) return <SessionDone session={session} onBack={() => router.push('/')} />;
 
   return (
-    <div className="animate-in" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div className="animate-in" style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '20px 20px 16px' }}>
         <button onClick={() => router.back()} className="btn-icon"><ArrowLeft size={18} /></button>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h1 style={{ fontWeight: 800, fontSize: 17, color: 'var(--green-deep)', lineHeight: 1.2 }}>{session.session_name}</h1>
-          <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
+          <h1 style={{ fontWeight: 800, fontSize: 18, color: 'var(--ink)', lineHeight: 1.2 }}>{session.session_name}</h1>
+          <p style={{ fontSize: 12, color: 'var(--sub)', marginTop: 2, fontWeight: 500 }}>
             {session.exercises.length} exercices · {session.estimated_duration} min
           </p>
         </div>
         {session.status === 'active' && (
-          <span className="pill pill-orange" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <Play size={10} />En cours
+          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--b-fg)', background: 'var(--b-bg)', padding: '5px 10px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Play size={10} fill="var(--b-fg)" />En cours
           </span>
         )}
       </div>
 
       {/* Rest timer */}
       {restTimer.running && (
-        <div className="glass-orange animate-scale" style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Timer size={20} color="var(--orange)" />
+        <div className="animate-scale" style={{ margin: '0 20px', background: 'var(--b-bg)', border: '1.5px solid var(--b-fg)33', borderRadius: 18, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <Timer size={20} color="var(--b-fg)" />
           <div style={{ flex: 1 }}>
-            <p style={{ fontWeight: 700, fontSize: 13, color: 'var(--green-deep)' }}>Temps de repos</p>
+            <p style={{ fontWeight: 700, fontSize: 13, color: 'var(--ink)' }}>Temps de repos</p>
           </div>
-          <span style={{ fontSize: 28, fontWeight: 800, fontVariantNumeric: 'tabular-nums', color: 'var(--orange)' }}>
+          <span style={{ fontSize: 28, fontWeight: 800, fontVariantNumeric: 'tabular-nums', color: 'var(--b-fg)' }}>
             {fmt(restTimer.seconds)}
           </span>
-          <button className="btn-icon" onClick={() => setRestTimer({ seconds: 0, running: false })} style={{ width: 28, height: 28 }}>✕</button>
+          <button onClick={() => setRestTimer({ seconds: 0, running: false })} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--sub)', fontSize: 18, lineHeight: 1, padding: 4 }}>✕</button>
         </div>
       )}
 
       {/* Exercise cards */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
         {session.exercises.map((ex, idx) => {
           const completedSets = ex.sets_log.filter(s => s.completed).length;
           const isOpen = expandedIdx === idx;
@@ -164,10 +164,10 @@ export default function SessionPage() {
           const color = muscleColor(ex.muscle_group);
 
           return (
-            <div key={ex.id} className="glass-strong" style={{
-              overflow: 'hidden',
-              outline: isOpen ? `2px solid ${color}33` : '2px solid transparent',
-              transition: 'outline 0.2s ease',
+            <div key={ex.id} style={{
+              background: 'var(--card-bg)', border: isOpen ? `1.5px solid ${color}50` : 'var(--card-border)',
+              borderRadius: 20, overflow: 'hidden', boxShadow: 'var(--card-shadow)',
+              transition: 'border-color 0.2s ease',
             }}>
               {/* Exercise image — centerpiece */}
               <div style={{ position: 'relative', height: isOpen ? 200 : 120, overflow: 'hidden', transition: 'height 0.3s ease', backgroundColor: `${color}10`, cursor: 'pointer' }}
@@ -249,9 +249,11 @@ export default function SessionPage() {
 
       {/* Finish */}
       {allDone && !done && (
-        <button onClick={finishSession} className="btn-orange animate-scale" style={{ width: '100%' }}>
-          <Trophy size={18} />Terminer la séance
-        </button>
+        <div style={{ padding: '8px 20px 0' }}>
+          <button onClick={finishSession} className="btn-orange animate-scale" style={{ width: '100%', height: 52, fontSize: 15 }}>
+            <Trophy size={18} />Terminer la séance
+          </button>
+        </div>
       )}
 
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
@@ -267,40 +269,40 @@ function SetRow({ set, repsTarget, accentColor, onToggle, onWeightChange, onReps
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 10,
-      padding: '10px 12px', borderRadius: 12,
-      background: set.completed ? `${accentColor}0d` : 'rgba(255,255,255,0.5)',
-      border: `1px solid ${set.completed ? accentColor + '30' : 'rgba(255,255,255,0.85)'}`,
+      padding: '11px 12px', borderRadius: 14,
+      background: set.completed ? `${accentColor}10` : 'var(--faint)',
+      border: `1.5px solid ${set.completed ? accentColor + '40' : 'var(--line)'}`,
       transition: 'all 0.2s ease',
     }}>
       <button onClick={onToggle} style={{ flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
         {set.completed
           ? <CheckCircle size={22} color={accentColor} />
-          : <Circle size={22} color="var(--text-muted)" />
+          : <Circle size={22} color="var(--sub)" />
         }
       </button>
 
-      <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', width: 24, textAlign: 'center', flexShrink: 0 }}>
+      <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--sub)', width: 22, textAlign: 'center', flexShrink: 0 }}>
         S{set.set_number}
       </span>
 
       {/* Weight */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
-        <button className="btn-icon" style={{ width: 30, height: 30 }} onClick={() => onWeightChange(-2.5)}><Minus size={12} /></button>
-        <div style={{ textAlign: 'center', minWidth: 50 }}>
-          <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--green-deep)', lineHeight: 1 }}>{set.weight_kg}</div>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>kg</div>
+        <button className="btn-icon" style={{ width: 32, height: 32 }} onClick={() => onWeightChange(-2.5)}><Minus size={13} /></button>
+        <div style={{ textAlign: 'center', minWidth: 52 }}>
+          <div style={{ fontWeight: 800, fontSize: 17, color: 'var(--ink)', lineHeight: 1 }}>{set.weight_kg}</div>
+          <div style={{ fontSize: 10, color: 'var(--sub)', fontWeight: 600 }}>kg</div>
         </div>
-        <button className="btn-icon" style={{ width: 30, height: 30 }} onClick={() => onWeightChange(2.5)}><Plus size={12} /></button>
+        <button className="btn-icon" style={{ width: 32, height: 32 }} onClick={() => onWeightChange(2.5)}><Plus size={13} /></button>
       </div>
 
       {/* Reps */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <button className="btn-icon" style={{ width: 30, height: 30 }} onClick={() => onRepsChange(Math.max(1, (set.reps_done || defaultReps) - 1))}><Minus size={12} /></button>
-        <div style={{ textAlign: 'center', minWidth: 36 }}>
-          <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--green-deep)', lineHeight: 1 }}>{set.reps_done || defaultReps}</div>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>reps</div>
+        <button className="btn-icon" style={{ width: 32, height: 32 }} onClick={() => onRepsChange(Math.max(1, (set.reps_done || defaultReps) - 1))}><Minus size={13} /></button>
+        <div style={{ textAlign: 'center', minWidth: 38 }}>
+          <div style={{ fontWeight: 800, fontSize: 17, color: 'var(--ink)', lineHeight: 1 }}>{set.reps_done || defaultReps}</div>
+          <div style={{ fontSize: 10, color: 'var(--sub)', fontWeight: 600 }}>reps</div>
         </div>
-        <button className="btn-icon" style={{ width: 30, height: 30 }} onClick={() => onRepsChange((set.reps_done || defaultReps) + 1)}><Plus size={12} /></button>
+        <button className="btn-icon" style={{ width: 32, height: 32 }} onClick={() => onRepsChange((set.reps_done || defaultReps) + 1)}><Plus size={13} /></button>
       </div>
     </div>
   );
@@ -312,31 +314,26 @@ function SessionDone({ session, onBack }: { session: SessionWithExercises; onBac
     a + ex.sets_log.filter(s => s.completed).reduce((b, s) => b + s.weight_kg * s.reps_done, 0), 0);
 
   return (
-    <div className="animate-scale" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24, padding: '32px 0' }}>
-      <div style={{
-        width: 80, height: 80, borderRadius: 28,
-        background: 'linear-gradient(135deg,#f97316,#ea580c)',
-        boxShadow: '0 8px 32px rgba(249,115,22,0.4)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}>
+    <div className="animate-scale" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24, padding: '40px 20px' }}>
+      <div style={{ width: 80, height: 80, borderRadius: 26, background: 'linear-gradient(135deg,#f97316,#ea580c)', boxShadow: '0 12px 32px rgba(249,115,22,.38)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Trophy size={36} color="white" />
       </div>
       <div style={{ textAlign: 'center' }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--green-deep)' }}>Séance terminée 🎉</h1>
-        <p style={{ fontSize: 14, color: 'var(--text-muted)', marginTop: 4 }}>{session.session_name}</p>
+        <h1 style={{ fontSize: 26, fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.4px' }}>Séance terminée 🎉</h1>
+        <p style={{ fontSize: 14, color: 'var(--sub)', marginTop: 5, fontWeight: 500 }}>{session.session_name}</p>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, width: '100%' }}>
-        <div className="glass" style={{ padding: '20px 16px', textAlign: 'center' }}>
-          <p style={{ fontSize: 28, fontWeight: 800, color: 'var(--green-mid)' }}>{totalSets}</p>
-          <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>séries complétées</p>
+        <div style={{ background: 'var(--card-bg)', borderRadius: 18, padding: '20px 16px', border: 'var(--card-border)', boxShadow: 'var(--card-shadow)', textAlign: 'center' }}>
+          <p style={{ fontSize: 30, fontWeight: 800, color: 'var(--primary)', lineHeight: 1 }}>{totalSets}</p>
+          <p style={{ fontSize: 12, color: 'var(--sub)', marginTop: 6, fontWeight: 600 }}>séries</p>
         </div>
-        <div className="glass" style={{ padding: '20px 16px', textAlign: 'center' }}>
-          <p style={{ fontSize: 28, fontWeight: 800, color: 'var(--orange)' }}>{Math.round(totalVolume).toLocaleString()}</p>
-          <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>kg de volume</p>
+        <div style={{ background: 'var(--card-bg)', borderRadius: 18, padding: '20px 16px', border: 'var(--card-border)', boxShadow: 'var(--card-shadow)', textAlign: 'center' }}>
+          <p style={{ fontSize: 30, fontWeight: 800, color: 'var(--b-fg)', lineHeight: 1 }}>{Math.round(totalVolume).toLocaleString()}</p>
+          <p style={{ fontSize: 12, color: 'var(--sub)', marginTop: 6, fontWeight: 600 }}>kg soulevés</p>
         </div>
       </div>
-      <button onClick={onBack} className="btn-primary" style={{ width: '100%' }}>
-        <Clock size={18} />Retour au tableau de bord
+      <button onClick={onBack} className="btn-primary" style={{ width: '100%', height: 52, fontSize: 15 }}>
+        <Clock size={18} />Retour à l'accueil
       </button>
     </div>
   );

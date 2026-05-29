@@ -19,7 +19,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="app-shell">
       <Navigation displayName={displayName} />
       <main className="app-main">
-        <div style={{ maxWidth: 672, margin: '0 auto', padding: '24px 16px' }}>
+        <div style={{ maxWidth: 540, margin: '0 auto', width: '100%' }}>
           {children}
         </div>
       </main>

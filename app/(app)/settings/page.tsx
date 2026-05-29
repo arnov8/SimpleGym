@@ -2,15 +2,26 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, LogOut, Loader2, User, Dumbbell, SlidersHorizontal } from 'lucide-react';
+import { Save, LogOut, Loader2, User, Dumbbell, SlidersHorizontal, Check } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { Profile } from '@/lib/types';
 
 const LEVELS = [
-  { value: 'beginner',     label: 'Débutant',      desc: 'Moins d\'1 an de pratique' },
-  { value: 'intermediate', label: 'Intermédiaire',  desc: '1 à 3 ans de pratique'    },
-  { value: 'advanced',     label: 'Avancé',         desc: 'Plus de 3 ans de pratique' },
+  { value: 'beginner',     label: 'Débutant',       desc: 'Moins d\'1 an de pratique' },
+  { value: 'intermediate', label: 'Intermédiaire',   desc: '1 à 3 ans de pratique'    },
+  { value: 'advanced',     label: 'Avancé',          desc: 'Plus de 3 ans de pratique' },
 ];
+
+function SectionTitle({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+      <div style={{ width: 30, height: 30, borderRadius: 9, background: 'var(--primary-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Icon size={15} color="var(--primary)" />
+      </div>
+      <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)' }}>{label}</span>
+    </div>
+  );
+}
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -21,124 +32,119 @@ export default function SettingsPage() {
   const [form, setForm] = useState({ display_name: '', fitness_level: 'intermediate', equipment_notes: '' });
 
   useEffect(() => {
-    fetch('/api/profile')
-      .then(r => r.json())
-      .then(data => {
-        setProfile(data);
-        setForm({ display_name: data.display_name, fitness_level: data.fitness_level, equipment_notes: data.equipment_notes });
-        setLoading(false);
-      });
+    fetch('/api/profile').then(r => r.json()).then(data => {
+      setProfile(data);
+      setForm({ display_name: data.display_name, fitness_level: data.fitness_level, equipment_notes: data.equipment_notes });
+      setLoading(false);
+    });
   }, []);
 
   const save = async () => {
     setSaving(true);
-    await fetch('/api/profile', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    });
-    setSaving(false);
-    setSaved(true);
+    await fetch('/api/profile', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
+    setSaving(false); setSaved(true);
     setTimeout(() => setSaved(false), 2000);
     router.refresh();
   };
 
   const logout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
+    await createClient().auth.signOut();
     router.push('/login');
   };
 
   if (loading) return (
-    <div className="flex items-center justify-center min-h-64">
-      <div className="w-8 h-8 rounded-full border-2 animate-spin" style={{ borderColor: 'var(--indigo)', borderTopColor: 'transparent' }} />
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
+      <div style={{ width: 28, height: 28, borderRadius: '50%', border: '3px solid var(--primary)', borderTopColor: 'transparent', animation: 'spin .8s linear infinite' }} />
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   );
 
   return (
-    <div className="flex flex-col gap-6 animate-in">
-      <div>
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Réglages</h1>
-        <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>{profile?.email}</p>
+    <div className="animate-in" style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+
+      {/* Header */}
+      <div style={{ padding: '24px 20px 20px' }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.4px' }}>Réglages</h1>
+        <p style={{ fontSize: 13.5, color: 'var(--sub)', marginTop: 4, fontWeight: 500 }}>{profile?.email}</p>
       </div>
 
-      {/* Identity */}
-      <section className="glass-strong p-5 flex flex-col gap-4">
-        <div className="flex items-center gap-2 mb-1">
-          <User size={16} style={{ color: 'var(--indigo-light)' }} />
-          <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Identité</h2>
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Prénom / surnom</label>
-          <input
-            type="text"
-            className="input"
-            value={form.display_name}
-            onChange={e => setForm(p => ({ ...p, display_name: e.target.value }))}
-            placeholder="Thomas"
-          />
-        </div>
-      </section>
+      <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-      {/* Fitness level */}
-      <section className="glass-strong p-5 flex flex-col gap-4">
-        <div className="flex items-center gap-2 mb-1">
-          <Dumbbell size={16} style={{ color: 'var(--indigo-light)' }} />
-          <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Niveau</h2>
+        {/* Identity */}
+        <div style={{ background: 'var(--card-bg)', borderRadius: 20, padding: '18px', border: 'var(--card-border)', boxShadow: 'var(--card-shadow)' }}>
+          <SectionTitle icon={User} label="Identité" />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--sub)' }}>Prénom / surnom</label>
+            <input
+              type="text" className="input" value={form.display_name}
+              onChange={e => setForm(p => ({ ...p, display_name: e.target.value }))}
+              placeholder="Thomas"
+            />
+          </div>
         </div>
-        <div className="flex flex-col gap-2">
-          {LEVELS.map(l => (
-            <button
-              key={l.value}
-              onClick={() => setForm(p => ({ ...p, fitness_level: l.value }))}
-              className="p-3 rounded-xl text-left transition-all"
-              style={{
-                background: form.fitness_level === l.value ? 'rgba(99,102,241,0.15)' : 'var(--glass-bg)',
-                border: `1px solid ${form.fitness_level === l.value ? 'rgba(99,102,241,0.4)' : 'var(--glass-border)'}`,
-              }}
-            >
-              <p className="font-semibold text-sm" style={{ color: form.fitness_level === l.value ? 'var(--indigo-light)' : 'var(--text-primary)' }}>
-                {l.label}
-              </p>
-              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{l.desc}</p>
-            </button>
-          ))}
+
+        {/* Fitness level */}
+        <div style={{ background: 'var(--card-bg)', borderRadius: 20, padding: '18px', border: 'var(--card-border)', boxShadow: 'var(--card-shadow)' }}>
+          <SectionTitle icon={Dumbbell} label="Niveau" />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {LEVELS.map(l => {
+              const active = form.fitness_level === l.value;
+              return (
+                <button key={l.value} onClick={() => setForm(p => ({ ...p, fitness_level: l.value }))} style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '13px 14px', borderRadius: 14, cursor: 'pointer', textAlign: 'left',
+                  background: active ? 'var(--primary-soft)' : 'var(--faint)',
+                  border: active ? '1.5px solid var(--primary)' : '1.5px solid transparent',
+                  transition: 'all .15s ease',
+                }}>
+                  <div>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: active ? 'var(--primary)' : 'var(--ink)' }}>{l.label}</p>
+                    <p style={{ fontSize: 12, color: 'var(--sub)', marginTop: 2 }}>{l.desc}</p>
+                  </div>
+                  {active && <Check size={16} color="var(--primary)" strokeWidth={2.5} />}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </section>
 
-      {/* Equipment */}
-      <section className="glass-strong p-5 flex flex-col gap-4">
-        <div className="flex items-center gap-2 mb-1">
-          <SlidersHorizontal size={16} style={{ color: 'var(--indigo-light)' }} />
-          <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Équipement & préférences</h2>
+        {/* Equipment */}
+        <div style={{ background: 'var(--card-bg)', borderRadius: 20, padding: '18px', border: 'var(--card-border)', boxShadow: 'var(--card-shadow)' }}>
+          <SectionTitle icon={SlidersHorizontal} label="Équipement & préférences" />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--sub)', lineHeight: 1.4 }}>
+              Décris ton équipement et tes contraintes — transmis à l'IA à chaque génération
+            </label>
+            <textarea
+              className="input" rows={4} value={form.equipment_notes}
+              onChange={e => setForm(p => ({ ...p, equipment_notes: e.target.value }))}
+              placeholder="Ex : Salle équipée standard. Douleur au genou gauche, éviter les leg press lourds."
+              style={{ resize: 'none', borderRadius: 14, fontSize: 14 }}
+            />
+          </div>
         </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>
-            Décris ton équipement et tes contraintes (transmis à l'IA à chaque génération)
-          </label>
-          <textarea
-            className="input resize-none"
-            rows={4}
-            value={form.equipment_notes}
-            onChange={e => setForm(p => ({ ...p, equipment_notes: e.target.value }))}
-            placeholder="Ex : Salle équipée standard. J'ai une douleur au genou gauche, éviter les leg press lourds. Pas de machine à câbles basse."
-            style={{ borderRadius: 12 }}
-          />
+
+        {/* Save */}
+        <button onClick={save} disabled={saving} className={saved ? 'btn-ghost' : 'btn-primary'} style={{ width: '100%', height: 50, fontSize: 15 }}>
+          {saving ? <><Loader2 size={18} style={{ animation: 'spin .8s linear infinite' }} /> Enregistrement...</> : saved ? <>✓ Enregistré</> : <><Save size={18} /> Enregistrer</>}
+        </button>
+
+        {/* Danger zone */}
+        <div style={{ background: 'var(--card-bg)', borderRadius: 20, padding: '4px', border: 'var(--card-border)', boxShadow: 'var(--card-shadow)' }}>
+          <button onClick={logout} style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            width: '100%', padding: '14px', borderRadius: 16,
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: '#dc2626', fontSize: 14, fontWeight: 700,
+          }}>
+            <LogOut size={17} /> Se déconnecter
+          </button>
         </div>
-      </section>
 
-      {/* Save */}
-      <button onClick={save} disabled={saving} className={saved ? 'btn-ghost w-full' : 'btn-primary w-full'}>
-        {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-        {saving ? 'Enregistrement...' : saved ? '✓ Enregistré' : 'Enregistrer'}
-      </button>
+        <div style={{ height: 8 }} />
+      </div>
 
-      <div className="divider" />
-
-      <button onClick={logout} className="btn-ghost w-full text-sm" style={{ color: '#f87171', borderColor: 'rgba(239,68,68,0.2)' }}>
-        <LogOut size={16} />
-        Déconnexion
-      </button>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   );
 }
