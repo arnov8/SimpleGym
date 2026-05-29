@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { generateWorkout } from '@/lib/claude';
+import { generateWorkout, fetchExerciseImage } from '@/lib/claude';
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -23,7 +23,11 @@ export async function POST(request: NextRequest) {
       profile?.equipment_notes ?? ''
     );
 
-    // Save session + exercises
+    // Fetch exercise images in parallel from wger
+    const imageUrls = await Promise.all(
+      workout.exercises.map(ex => fetchExerciseImage(ex.name_en || ex.name))
+    );
+
     const today = new Date().toISOString().split('T')[0];
     const { data: session, error: sessionErr } = await supabase
       .from('sessions')
@@ -44,11 +48,13 @@ export async function POST(request: NextRequest) {
     const exercisesPayload = workout.exercises.map((ex, i) => ({
       session_id: session.id,
       name: ex.name,
+      name_en: ex.name_en || ex.name,
       muscle_group: ex.muscle_group,
       sets: ex.sets,
       reps_target: ex.reps,
       rest_seconds: ex.rest_seconds,
       notes: ex.notes,
+      image_url: imageUrls[i] || '',
       order_index: i,
     }));
 
@@ -59,7 +65,6 @@ export async function POST(request: NextRequest) {
 
     if (exErr) throw exErr;
 
-    // Pre-create sets_log rows (empty, to be filled during session)
     const setsPayload = exercises.flatMap(ex =>
       Array.from({ length: ex.sets }, (_, i) => ({
         exercise_id: ex.id,

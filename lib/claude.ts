@@ -13,11 +13,12 @@ Le JSON doit respecter exactement ce schéma :
   "exercises": [
     {
       "name": string (nom de l'exercice en français),
+      "name_en": string (nom de l'exercice en anglais, standard gym terminology, ex: "Bench Press", "Lat Pulldown", "Squat"),
       "muscle_group": string,
       "sets": number,
       "reps": string (ex: "8-10" ou "12" ou "jusqu'à l'échec"),
       "rest_seconds": number,
-      "notes": string (conseil technique court)
+      "notes": string (conseil technique court, 1 phrase max)
     }
   ]
 }
@@ -25,8 +26,8 @@ Le JSON doit respecter exactement ce schéma :
 Règles :
 - 4 à 8 exercices maximum par séance
 - Adapte l'intensité au niveau indiqué
-- Propose des poids de départ réalistes dans les notes si pertinent
-- Ordonne les exercices logiquement (composés en premier)`;
+- Ordonne les exercices logiquement (composés en premier)
+- name_en doit être le nom anglais standard utilisé dans les bases de données d'exercices`;
 
 export async function generateWorkout(
   prompt: string,
@@ -53,9 +54,31 @@ Demande : ${prompt}`;
     return await makeRequest('claude-sonnet-4-6');
   } catch (err: unknown) {
     const status = (err as { status?: number }).status;
-    if (status === 529 || status === 529) {
-      return await makeRequest('claude-haiku-4-5-20251001');
-    }
+    if (status === 529) return await makeRequest('claude-haiku-4-5-20251001');
     throw err;
+  }
+}
+
+export async function fetchExerciseImage(nameEn: string): Promise<string> {
+  try {
+    const res = await fetch(
+      `https://wger.de/api/v2/exercise/?format=json&language=2&term=${encodeURIComponent(nameEn)}&limit=5`,
+      { headers: { 'Accept': 'application/json' }, next: { revalidate: 86400 } }
+    );
+    if (!res.ok) return '';
+    const data = await res.json();
+    if (!data.results?.length) return '';
+
+    const exerciseBaseId = data.results[0].exercise_base;
+
+    const imgRes = await fetch(
+      `https://wger.de/api/v2/exerciseimage/?format=json&exercise_base=${exerciseBaseId}&limit=2`,
+      { headers: { 'Accept': 'application/json' }, next: { revalidate: 86400 } }
+    );
+    if (!imgRes.ok) return '';
+    const imgData = await imgRes.json();
+    return imgData.results?.[0]?.image ?? '';
+  } catch {
+    return '';
   }
 }

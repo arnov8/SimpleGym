@@ -29,11 +29,13 @@ export interface Exercise {
   id: string;
   session_id: string;
   name: string;
+  name_en: string;
   muscle_group: string;
   sets: number;
   reps_target: string;
   rest_seconds: number;
   notes: string;
+  image_url: string;
   order_index: number;
   sets_log?: SetLog[];
 }
@@ -51,6 +53,7 @@ export interface SetLog {
 
 export interface GeneratedExercise {
   name: string;
+  name_en: string;
   muscle_group: string;
   sets: number;
   reps: string;
