@@ -26,20 +26,22 @@ export default function Navigation({ displayName }: { displayName: string }) {
 
   return (
     <>
-      {/* Desktop sidebar — controlled by .sidebar CSS class */}
+      {/* Desktop sidebar */}
       <aside className="sidebar">
         {/* Brand */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 8px', marginBottom: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 8px', marginBottom: 12 }}>
           <div style={{
-            width: 36, height: 36, borderRadius: 12, flexShrink: 0,
-            background: 'linear-gradient(135deg,#6366f1,#4f46e5)',
-            boxShadow: '0 0 20px rgba(99,102,241,0.4)',
+            width: 40, height: 40, borderRadius: 12, flexShrink: 0,
+            background: 'linear-gradient(135deg, #10b981, #0d5e3a)',
+            boxShadow: '0 4px 16px rgba(16,185,129,0.35)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <Dumbbell size={18} color="white" />
+            <Dumbbell size={20} color="white" />
           </div>
           <div style={{ minWidth: 0 }}>
-            <p style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>SimpleGym</p>
+            <p style={{ fontWeight: 800, fontSize: 15, color: 'var(--green-deep)', letterSpacing: '-0.3px' }}>
+              SimpleGym
+            </p>
             <p style={{ fontSize: 12, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {displayName}
             </p>
@@ -47,18 +49,18 @@ export default function Navigation({ displayName }: { displayName: string }) {
         </div>
 
         {/* Nav links */}
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
           {NAV_ITEMS.map(({ href, icon: Icon, label }) => {
             const active = pathname === href;
             return (
               <Link key={href} href={href} style={{
-                display: 'flex', alignItems: 'center', gap: 12,
-                padding: '10px 12px', borderRadius: 12,
-                fontSize: 14, fontWeight: 500, textDecoration: 'none',
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: '11px 14px', borderRadius: 12,
+                fontSize: 14, fontWeight: active ? 700 : 500, textDecoration: 'none',
                 transition: 'all 0.15s ease',
-                background: active ? 'rgba(99,102,241,0.15)' : 'transparent',
-                color: active ? 'var(--indigo-light)' : 'var(--text-secondary)',
-                borderLeft: active ? '2px solid var(--indigo)' : '2px solid transparent',
+                background: active ? 'rgba(16,185,129,0.14)' : 'transparent',
+                color: active ? 'var(--green-deep)' : 'var(--text-secondary)',
+                boxShadow: active ? 'inset 3px 0 0 var(--green-mid)' : 'none',
               }}>
                 <Icon size={18} />
                 {label}
@@ -70,9 +72,9 @@ export default function Navigation({ displayName }: { displayName: string }) {
         {/* Logout */}
         <button onClick={logout} style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-          padding: '10px 16px', borderRadius: 12, width: '100%',
-          background: 'var(--glass-bg)', border: '1px solid var(--glass-border)',
-          color: 'var(--text-secondary)', fontSize: 14, fontWeight: 500,
+          padding: '11px 16px', borderRadius: 12, width: '100%', marginTop: 8,
+          background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.85)',
+          color: 'var(--text-muted)', fontSize: 14, fontWeight: 500,
           cursor: 'pointer', transition: 'all 0.15s ease',
         }}>
           <LogOut size={16} />
@@ -80,7 +82,7 @@ export default function Navigation({ displayName }: { displayName: string }) {
         </button>
       </aside>
 
-      {/* Mobile bottom nav — controlled by .bottom-nav CSS class */}
+      {/* Mobile bottom nav */}
       <nav className="bottom-nav">
         {NAV_ITEMS.map(({ href, icon: Icon, label }) => {
           const active = pathname === href;
@@ -88,11 +90,11 @@ export default function Navigation({ displayName }: { displayName: string }) {
             <Link key={href} href={href} style={{
               display: 'flex', flexDirection: 'column', alignItems: 'center',
               gap: 3, padding: '4px 12px', borderRadius: 12, textDecoration: 'none',
-              color: active ? 'var(--indigo-light)' : 'var(--text-muted)',
+              color: active ? 'var(--green-deep)' : 'var(--text-muted)',
               transition: 'color 0.15s ease',
             }}>
               <Icon size={22} />
-              <span style={{ fontSize: 10, fontWeight: 600 }}>{label}</span>
+              <span style={{ fontSize: 10, fontWeight: active ? 700 : 500 }}>{label}</span>
             </Link>
           );
         })}
