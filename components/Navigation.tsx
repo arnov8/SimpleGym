@@ -6,7 +6,7 @@ import { Dumbbell, Plus, History, TrendingUp, Settings, LogOut } from 'lucide-re
 import { createClient } from '@/lib/supabase/client';
 
 const NAV_ITEMS = [
-  { href: '/',          icon: Dumbbell,   label: 'Aujourd\'hui' },
+  { href: '/',         icon: Dumbbell,   label: "Aujourd'hui" },
   { href: '/generate', icon: Plus,       label: 'Générer'     },
   { href: '/history',  icon: History,    label: 'Historique'  },
   { href: '/progress', icon: TrendingUp, label: 'Progression' },
@@ -26,38 +26,40 @@ export default function Navigation({ displayName }: { displayName: string }) {
 
   return (
     <>
-      {/* Desktop sidebar */}
-      <aside
-        className="hidden md:flex flex-col w-64 min-h-dvh p-4 gap-2 fixed left-0 top-0"
-        style={{ background: 'rgba(10,15,30,0.8)', backdropFilter: 'blur(20px)', borderRight: '1px solid var(--glass-border)' }}
-      >
-        <div className="flex items-center gap-3 px-2 py-4 mb-2">
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: 'linear-gradient(135deg,#6366f1,#4f46e5)', boxShadow: '0 0 20px rgba(99,102,241,0.4)' }}
-          >
+      {/* Desktop sidebar — controlled by .sidebar CSS class */}
+      <aside className="sidebar">
+        {/* Brand */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 8px', marginBottom: 8 }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: 12, flexShrink: 0,
+            background: 'linear-gradient(135deg,#6366f1,#4f46e5)',
+            boxShadow: '0 0 20px rgba(99,102,241,0.4)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
             <Dumbbell size={18} color="white" />
           </div>
-          <div>
-            <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>SimpleGym</p>
-            <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{displayName}</p>
+          <div style={{ minWidth: 0 }}>
+            <p style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>SimpleGym</p>
+            <p style={{ fontSize: 12, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {displayName}
+            </p>
           </div>
         </div>
 
-        <nav className="flex flex-col gap-1 flex-1">
+        {/* Nav links */}
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
           {NAV_ITEMS.map(({ href, icon: Icon, label }) => {
             const active = pathname === href;
             return (
-              <Link
-                key={href}
-                href={href}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                style={{
-                  background: active ? 'rgba(99,102,241,0.15)' : 'transparent',
-                  color: active ? 'var(--indigo-light)' : 'var(--text-secondary)',
-                  borderLeft: active ? '2px solid var(--indigo)' : '2px solid transparent',
-                }}
-              >
+              <Link key={href} href={href} style={{
+                display: 'flex', alignItems: 'center', gap: 12,
+                padding: '10px 12px', borderRadius: 12,
+                fontSize: 14, fontWeight: 500, textDecoration: 'none',
+                transition: 'all 0.15s ease',
+                background: active ? 'rgba(99,102,241,0.15)' : 'transparent',
+                color: active ? 'var(--indigo-light)' : 'var(--text-secondary)',
+                borderLeft: active ? '2px solid var(--indigo)' : '2px solid transparent',
+              }}>
                 <Icon size={18} />
                 {label}
               </Link>
@@ -65,28 +67,32 @@ export default function Navigation({ displayName }: { displayName: string }) {
           })}
         </nav>
 
-        <button onClick={logout} className="btn-ghost w-full text-sm">
+        {/* Logout */}
+        <button onClick={logout} style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          padding: '10px 16px', borderRadius: 12, width: '100%',
+          background: 'var(--glass-bg)', border: '1px solid var(--glass-border)',
+          color: 'var(--text-secondary)', fontSize: 14, fontWeight: 500,
+          cursor: 'pointer', transition: 'all 0.15s ease',
+        }}>
           <LogOut size={16} />
           Déconnexion
         </button>
       </aside>
 
-      {/* Mobile bottom tab bar */}
-      <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 flex items-center justify-around pb-safe pt-2 z-50"
-        style={{ background: 'rgba(10,15,30,0.92)', backdropFilter: 'blur(20px)', borderTop: '1px solid var(--glass-border)' }}
-      >
+      {/* Mobile bottom nav — controlled by .bottom-nav CSS class */}
+      <nav className="bottom-nav">
         {NAV_ITEMS.map(({ href, icon: Icon, label }) => {
           const active = pathname === href;
           return (
-            <Link
-              key={href}
-              href={href}
-              className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all"
-              style={{ color: active ? 'var(--indigo-light)' : 'var(--text-muted)' }}
-            >
+            <Link key={href} href={href} style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              gap: 3, padding: '4px 12px', borderRadius: 12, textDecoration: 'none',
+              color: active ? 'var(--indigo-light)' : 'var(--text-muted)',
+              transition: 'color 0.15s ease',
+            }}>
               <Icon size={22} />
-              <span className="text-[10px] font-medium">{label}</span>
+              <span style={{ fontSize: 10, fontWeight: 600 }}>{label}</span>
             </Link>
           );
         })}

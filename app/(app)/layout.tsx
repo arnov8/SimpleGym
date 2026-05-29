@@ -16,10 +16,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const displayName = profile?.display_name || user.email?.split('@')[0] || 'Athlète';
 
   return (
-    <div className="min-h-dvh">
+    <div className="app-shell">
       <Navigation displayName={displayName} />
-      <main className="md:ml-64 pb-24 md:pb-8 pt-safe">
-        <div className="max-w-2xl mx-auto px-4 py-6">{children}</div>
+      <main className="app-main">
+        <div style={{ maxWidth: 672, margin: '0 auto', padding: '24px 16px' }}>
+          {children}
+        </div>
       </main>
     </div>
   );

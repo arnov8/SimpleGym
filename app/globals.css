@@ -220,3 +220,73 @@ body {
 
 .pb-safe { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
 .pt-safe { padding-top: env(safe-area-inset-top, 0); }
+
+/* ============================================================
+   App Shell Layout
+   ============================================================ */
+
+.app-shell {
+  display: flex;
+  min-height: 100dvh;
+}
+
+/* Sidebar — hidden on mobile */
+.sidebar {
+  display: none;
+}
+
+/* Main content — full width on mobile, offset on desktop */
+.app-main {
+  flex: 1;
+  min-width: 0;
+  padding-bottom: 88px; /* space for bottom nav on mobile */
+}
+
+/* Bottom nav — visible only on mobile */
+.bottom-nav {
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  align-items: center;
+  justify-content: space-around;
+  padding-top: 8px;
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 50;
+  background: rgba(10, 15, 30, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--glass-border);
+}
+
+/* Desktop breakpoint */
+@media (min-width: 768px) {
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 256px;
+    flex-shrink: 0;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    overflow-y: auto;
+    padding: 16px;
+    gap: 8px;
+    background: rgba(10, 15, 30, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid var(--glass-border);
+    z-index: 40;
+  }
+
+  .app-main {
+    margin-left: 256px;
+    padding-bottom: 32px;
+  }
+
+  .bottom-nav {
+    display: none;
+  }
+}
