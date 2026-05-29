@@ -23,9 +23,9 @@ export async function POST(request: NextRequest) {
       profile?.equipment_notes ?? ''
     );
 
-    // Fetch exercise images in parallel from wger
-    const imageUrls = await Promise.all(
-      workout.exercises.map(ex => fetchExerciseImage(ex.name_en || ex.name))
+    // Get exercise images from static mapping (instant, no API call)
+    const imageUrls = workout.exercises.map(ex =>
+      fetchExerciseImage(ex.name_en || ex.name)
     );
 
     const today = new Date().toISOString().split('T')[0];

@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { GeneratedWorkout } from './types';
+import { getExerciseImage } from './exercise-images';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -59,27 +60,6 @@ Demande : ${prompt}`;
   }
 }
 
-export async function fetchExerciseImage(nameEn: string): Promise<string> {
-  try {
-    // Step 1: search by name to get the exercise base_id
-    const searchRes = await fetch(
-      `https://wger.de/api/v2/exercise/search/?term=${encodeURIComponent(nameEn)}&language=english&format=json`,
-      { headers: { 'Accept': 'application/json', 'User-Agent': 'SimpleGym/1.0' } }
-    );
-    if (!searchRes.ok) return '';
-    const searchData = await searchRes.json();
-    const baseId = searchData.suggestions?.[0]?.data?.base_id;
-    if (!baseId) return '';
-
-    // Step 2: get images for this exercise base
-    const imgRes = await fetch(
-      `https://wger.de/api/v2/exerciseimage/?format=json&exercise_base=${baseId}&is_main=True`,
-      { headers: { 'Accept': 'application/json' } }
-    );
-    if (!imgRes.ok) return '';
-    const imgData = await imgRes.json();
-    return imgData.results?.[0]?.image ?? '';
-  } catch {
-    return '';
-  }
+export function fetchExerciseImage(nameEn: string): string {
+  return getExerciseImage(nameEn);
 }
