@@ -1,0 +1,61 @@
+import Anthropic from '@anthropic-ai/sdk';
+import type { GeneratedWorkout } from './types';
+
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+const SYSTEM_PROMPT = `Tu es un coach sportif expert en musculation en salle. Tu génères des séances de sport structurées et adaptées.
+Réponds TOUJOURS en JSON pur, sans markdown, sans code fence.
+Le JSON doit respecter exactement ce schéma :
+{
+  "session_name": string,
+  "muscles_targeted": string[],
+  "estimated_duration": number (en minutes),
+  "exercises": [
+    {
+      "name": string (nom de l'exercice en français),
+      "muscle_group": string,
+      "sets": number,
+      "reps": string (ex: "8-10" ou "12" ou "jusqu'à l'échec"),
+      "rest_seconds": number,
+      "notes": string (conseil technique court)
+    }
+  ]
+}
+
+Règles :
+- 4 à 8 exercices maximum par séance
+- Adapte l'intensité au niveau indiqué
+- Propose des poids de départ réalistes dans les notes si pertinent
+- Ordonne les exercices logiquement (composés en premier)`;
+
+export async function generateWorkout(
+  prompt: string,
+  fitnessLevel: string,
+  equipmentNotes: string
+): Promise<GeneratedWorkout> {
+  const userMessage = `Niveau : ${fitnessLevel}
+Équipement disponible : ${equipmentNotes || 'Salle complète standard'}
+Demande : ${prompt}`;
+
+  const makeRequest = async (model: string) => {
+    const msg = await anthropic.messages.create({
+      model,
+      max_tokens: 2048,
+      system: SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: userMessage }],
+    });
+    const text = (msg.content[0] as { type: string; text: string }).text.trim();
+    const cleaned = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+    return JSON.parse(cleaned) as GeneratedWorkout;
+  };
+
+  try {
+    return await makeRequest('claude-sonnet-4-6');
+  } catch (err: unknown) {
+    const status = (err as { status?: number }).status;
+    if (status === 529 || status === 529) {
+      return await makeRequest('claude-haiku-4-5-20251001');
+    }
+    throw err;
+  }
+}
